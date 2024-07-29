@@ -10,6 +10,8 @@ const db = mysql.createConnection({
     database:"Bank"
 })
 
+app.use(express.json())
+
 // GET fetch all customers
 /*
 app.get("/customer",(req,res)=>{
@@ -50,20 +52,55 @@ app.get("/customer/:cust_id", (req, res) => {
     });
 });
 
-/*// POST add a new customer
+// POST add a new customer
 
-app.post("/customer",(req,res) =>{
-    const {First_name,Last_name, city, mobile_no, occupation, dob} = req.body;
-    const sql = "INSERT INTO customer(First_name,Last_name, city, mobile_no, occupation, dob) VALUES('Kavin','Kumar','Erode','773237492','service','1999-03-24')";
-    db.query(sql,[cust_id, First_name, Last_name, city, mobile_no, occupation, dob],(err,result)=>{
+app.post("/customer", (req, res) => {
+    const { cust_id,First_name, Last_name, city, mobile_no, occupation, dob } = req.body;
+    const sql = "INSERT INTO customer (cust_id,First_name, Last_name, city, mobile_no, occupation, dob) VALUES (?, ?, ?, ?, ?, ?,?)";
+    db.query(sql, [cust_id,First_name, Last_name, city, mobile_no, occupation, dob], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({error:'Error',details:err.message});
+        }
+        return res.status(201).json("Customer added successfully");
+    });
+});
+
+// Updating mobile_no based on cust_id
+
+app.put("/customer/:cust_id",(req,res) =>{
+
+    const {cust_id} = req.params;
+    const {mobile_no} = req.body;
+    const sql = "UPDATE customer SET mobile_no = ? WHERE cust_id = ?";
+    db.query(sql, [cust_id,mobile_no], (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error', details: err.message });
+        }
+        return res.status(200).json(`Customer ${cust_id} phone number updated to ${mobile_no} successfully`);
+    });
+});
+
+// Deleting a customer
+
+app.delete("/customer/:cust_id",(req,res)=>{
+    const {cust_id} = req.params;
+    const sql = "DELETE FROM customer WHERE cust_id=?";
+
+    db.query(sql,[cust_id],(err)=>
+    {
         if(err){
             console.error(err);
-            return res.status(500).json("Error");
+            return res.status(500).json({error: 'Error',details:err.message});
+
         }
-        return res.status(201).json("customer added successfully");
+        return res.status(200).json(`Customer with ID ${cust_id} is deleted succesfullty`)
     })
 })
-    */
+
+
+
 app.listen(PORT,() => {
     console.log(`Server running on port ${PORT}`)
 })
