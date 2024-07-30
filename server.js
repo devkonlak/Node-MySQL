@@ -1,5 +1,7 @@
 const express =require('express');
 const mysql = require ('mysql');
+const multer = require('multer');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 8081;
@@ -114,6 +116,26 @@ app.get("/search",(req,res) =>{
             return res.status(500).json({error:'Error fetching customers'});
         }
         return res.status(200).json(data);
+    });
+});
+
+// configure multer to handle form data
+const storage = multer.memoryStorage();
+const upload = multer({storage:storage}); //creating an upload middleware that you can use to handle file uploads in your application.
+
+// Middleware to parse URL-encoded and form-data
+app.use(bodyParser.urlencoded({extended:true}))
+
+// adding new customer
+app.post('/add-customer',upload.none(),(req,res)=>{
+    const{cust_id,First_name,Last_name,city,mobile_no,occupation,dob} = req.body; //upload.none() is used to handle form data without file uploads. It ensures that form fields are parsed and available in req.body.
+    const sql = "INSERT INTO customer (cust_id, First_name, Last_name, city, mobile_no, occupation, dob) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    db.query(sql, [cust_id, First_name, Last_name, city, mobile_no, occupation, dob], (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error adding customer' });
+        }
+        return res.status(201).json({ message: 'Customer added successfully', customer: req.body });
     });
 });
 
