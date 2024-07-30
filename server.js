@@ -100,14 +100,13 @@ app.delete("/customer/:cust_id",(req,res)=>{
 })
 
 // GET search customers with query parameters
-
 app.get("/search",(req,res) =>{
     const{occupation} = req.query;
-    let sql = "SELECT * FROM customer WHERE 1=1";
+    let sql = "SELECT * FROM customer";
     const params = [];
 
     if(occupation){
-        sql = sql+ " AND occupation=?";
+        sql = sql+ " WHERE occupation=?";
         params.push(occupation);
     }
     db.query(sql,params,(err,data) => {
