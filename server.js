@@ -99,6 +99,24 @@ app.delete("/customer/:cust_id",(req,res)=>{
     })
 })
 
+// GET search customers with query parameters
+
+app.get("/search",(req,res) =>{
+    const{occupation} = req.query;
+    let sql = "SELECT * FROM customer WHERE 1=1";
+    const params = [];
+
+    if(occupation){
+        sql = sql+ " AND occupation=?";
+        params.push(occupation);
+    }
+    db.query(sql,params,(err,data) => {
+        if(err){
+            return res.status(500).json({error:'Error fetching customers'});
+        }
+        return res.status(200).json(data);
+    });
+});
 
 
 app.listen(PORT,() => {
